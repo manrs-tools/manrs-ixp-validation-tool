@@ -1,9 +1,9 @@
 -r requirements.txt
-pytest==5.4.3
-pytest-cov==2.10.0
-coverage==5.2
+pytest==6.1.1
+pytest-cov==2.10.1
+coverage==5.3
 
 # Code style and type checks
 mypy==0.782
-flake8==3.8.3
+flake8==3.8.4
 pep8-naming==0.11.1
