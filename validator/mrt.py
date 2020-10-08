@@ -5,21 +5,22 @@ from ryu.lib.packet import bgp
 
 from .status import RouteEntry
 
+RIB_MESSAGES = (
+    mrtlib.TableDump2RibIPv4UnicastMrtMessage,
+    mrtlib.TableDump2RibIPv6UnicastMrtMessage,
+)
+
 
 def parse_mrt(mrt_file: IO[bytes]) -> Generator[RouteEntry, None, None]:
+    """
+    Parse an MRT file and return a generator of RouteEntry's with
+    details of all routes in the file.
+    """
     peers = []
     for record in mrtlib.Reader(mrt_file):
         if isinstance(record.message, mrtlib.TableDump2PeerIndexTableMrtMessage):
             peers = record.message.peer_entries
-        elif isinstance(
-            record.message,
-            (
-                mrtlib.TableDump2RibIPv4UnicastMrtMessage,
-                mrtlib.TableDump2RibIPv6UnicastMrtMessage,
-            ),
-        ):
-            prefix = record.message.prefix.prefix
-            prefix_length = record.message.prefix.length
+        elif isinstance(record.message, RIB_MESSAGES):
             for entry in record.message.rib_entries:
                 origin = None
                 aspath = ""
@@ -30,8 +31,8 @@ def parse_mrt(mrt_file: IO[bytes]) -> Generator[RouteEntry, None, None]:
                 yield RouteEntry(
                     origin=origin,
                     aspath=aspath,
-                    prefix=prefix,
-                    prefix_length=prefix_length,
+                    prefix=record.message.prefix.prefix,
+                    prefix_length=record.message.prefix.length,
                     peer_ip=peers[entry.peer_index].ip_addr,
                     peer_as=peers[entry.peer_index].as_num,
                 )
@@ -42,6 +43,12 @@ def parse_mrt(mrt_file: IO[bytes]) -> Generator[RouteEntry, None, None]:
 def extract_aspath_info(
     attribute: bgp.BGPPathAttributeAsPath,
 ) -> Tuple[Optional[int], str]:
+    """
+    Extract the origin AS and AS path string from a ryu AS path attribute.
+    Returns a tuple of the origin AS and a string representing the
+    full path. Origin may be None if the path is empty or the origin is
+    an AS set. Path may be an empty string.
+    """
     origin = None
     aspath = ""
 

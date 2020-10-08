@@ -7,17 +7,25 @@ from .status import RouteEntry, RPKIStatus
 
 
 def validate(
-    route: RouteEntry, roa_tree: radix.Radix, return_all=False
+    route: RouteEntry, roa_tree: radix.Radix, verbose=False
 ) -> Optional[
     Dict[
         str,
         Union[RPKIStatus, Dict[str, Union[str, int]], List[Dict[str, Union[str, int]]]],
     ]
 ]:
-    rnodes = roa_tree.search_covering(route.prefix)
+    """
+    Validate a provided RouteEntry, using the roa's in a radix tree.
+    If the route is invalid, or verbose is set, returns a dictionary
+    with the details of the status, route, and all relevant ROAs.
+    Returns None otherwise.
+    """
     status = RPKIStatus.invalid
+
+    rnodes = roa_tree.search_covering(route.prefix)
     if not rnodes:
         status = RPKIStatus.not_found
+
     for rnode in rnodes:
         for roa in rnode.data["roas"]:
             if (
@@ -26,7 +34,8 @@ def validate(
                 and route.prefix_length <= roa["max_length"]
             ):
                 status = RPKIStatus.valid
-    if status == RPKIStatus.invalid or return_all:
+
+    if status == RPKIStatus.invalid or verbose:
         roa_dicts = []
         for rnode in rnodes:
             for roa in rnode.data["roas"]:

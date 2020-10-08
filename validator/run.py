@@ -14,6 +14,9 @@ from validator.validate import validate
 
 
 def run(mrt_file: str, roa_file: str, verbose: bool):
+    """
+    Main runner method. Reads from mrt_file and roa_file, outputs to stdout.
+    """
     invalid_count = 0
     mrt_entry_count = 0
 
@@ -23,17 +26,22 @@ def run(mrt_file: str, roa_file: str, verbose: bool):
     with open(mrt_file, "rb") as f:
         for mrt_entry in parse_mrt(f):
             mrt_entry_count += 1
-            result = validate(mrt_entry, roa_tree, return_all=verbose)
+            result = validate(mrt_entry, roa_tree, verbose=verbose)
             if result:
+                print(validator_result_str(result))
                 if result["status"] == RPKIStatus.invalid:
                     invalid_count += 1
-                print(validator_result_str(result))
     print(
-        f"Processed {mrt_entry_count} MRT entries, {roa_count} ROAs, found {invalid_count} RPKI invalid entries"
+        f"Processed {mrt_entry_count} MRT entries, {roa_count} ROAs, "
+        f"found {invalid_count} RPKI invalid entries"
     )
 
 
 def validator_result_str(result) -> str:
+    """
+    Translate a single validation result dictionary to a user-friendly
+    string with validation status and details of the route and ROAs.
+    """
     output = (
         f"RPKI {result['status'].name}: prefix {result['route']['prefix']} from "
         f"origin AS{result['route']['origin']}\n"

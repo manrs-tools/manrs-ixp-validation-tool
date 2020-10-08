@@ -38,7 +38,7 @@ def test_validate():
             peer_as=64511,
         ),
         roa_tree,
-        return_all=True,
+        verbose=True,
     )
     assert {
         "status": RPKIStatus.valid,
@@ -82,7 +82,7 @@ def test_validate():
             peer_as=64511,
         ),
         roa_tree,
-        return_all=True,
+        verbose=True,
     )
     assert RPKIStatus.valid == result["status"]
 
@@ -97,7 +97,7 @@ def test_validate():
             peer_as=64511,
         ),
         roa_tree,
-        return_all=True,
+        verbose=True,
     )
     assert RPKIStatus.not_found == result["status"]
 
@@ -112,7 +112,7 @@ def test_validate():
             peer_as=64511,
         ),
         roa_tree,
-        return_all=True,
+        verbose=True,
     )
     assert RPKIStatus.invalid == result["status"]
 
@@ -127,7 +127,7 @@ def test_validate():
             peer_as=64511,
         ),
         roa_tree,
-        return_all=True,
+        verbose=True,
     )
     assert RPKIStatus.invalid == result["status"]
 
@@ -142,6 +142,6 @@ def test_validate():
             peer_as=64511,
         ),
         roa_tree,
-        return_all=True,
+        verbose=True,
     )
     assert RPKIStatus.not_found == result["status"]
