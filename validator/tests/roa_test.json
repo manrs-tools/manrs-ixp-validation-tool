@@ -1,0 +1,10 @@
+{
+    "metadata": {"buildmachine": "test"},
+    "roas": [
+        {"asn": "AS64496", "prefix": "185.186.79.0/24", "maxLength": 28, "ta": "invalid"},
+        {"asn": "64497", "prefix": "185.186.79.0/24", "maxLength": 24, "ta": "invalid"},
+        {"asn": "AS26695", "prefix": "185.186.11.0/24", "maxLength": 64, "ta": "valid"},
+        {"asn": "64498", "prefix": "2001:db8::/32", "maxLength": 64, "ta": "no matches"},
+        {"asn": "0", "prefix": "2001:db8::/33", "maxLength": 64, "ta": "no matches"}
+    ]
+}

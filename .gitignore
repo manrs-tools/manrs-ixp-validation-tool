@@ -1,0 +1,9 @@
+.DS_Store
+.coverage
+.idea
+.mypy_cache
+.tmpdirs
+.pytest_cache
+
+syntax: glob
+__pycache__
