@@ -15,6 +15,7 @@ developed by DashCare_.
 
 Running
 -------
+This tool is compatible with Python 3.6 or newer.
 To run the tool, first install the requirements::
 
     pip install -r requirements.txt
