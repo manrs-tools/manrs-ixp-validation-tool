@@ -34,6 +34,11 @@ By default, the tool will print a few statistics and details of all invalid
 prefixes, to stdout. If you add ``-v`` or ``--verbose``, it will print details
 on every prefix seen in the MRT file.
 
+NOTE: in order to validate whether or not an MRT dump contained routes that
+were RPKI invalid at the time, the ROA JSON file and MRT dump should be from
+around the same time. Using a much newer ROA file may result in false
+positives, flagging routes that were valid at the time of the dump.
+
 Development
 -----------
 First, install the development requirements::
