@@ -1,11 +1,16 @@
-from typing import IO, Generator, Optional, Tuple
+from typing import IO, Generator, Iterable, Optional, Tuple
 
 from ryu.lib import mrtlib
 from ryu.lib.packet import bgp
 
 from .status import RouteEntry
 
-RIB_MESSAGES = (
+RIB_MESSAGES_V1 = (
+    mrtlib.TableDumpAfiIPv4MrtMessage,
+    mrtlib.TableDumpAfiIPv6MrtMessage,
+)
+
+RIB_MESSAGES_V2 = (
     mrtlib.TableDump2RibIPv4UnicastMrtMessage,
     mrtlib.TableDump2RibIPv6UnicastMrtMessage,
 )
@@ -20,13 +25,9 @@ def parse_mrt(mrt_file: IO[bytes]) -> Generator[RouteEntry, None, None]:
     for record in mrtlib.Reader(mrt_file):
         if isinstance(record.message, mrtlib.TableDump2PeerIndexTableMrtMessage):
             peers = record.message.peer_entries
-        elif isinstance(record.message, RIB_MESSAGES):
+        elif isinstance(record.message, RIB_MESSAGES_V2):
             for entry in record.message.rib_entries:
-                origin = None
-                aspath = ""
-                for attribute in entry.bgp_attributes:
-                    if isinstance(attribute, bgp.BGPPathAttributeAsPath):
-                        origin, aspath = extract_aspath_info(attribute)
+                origin, aspath = extract_aspath_info(entry.bgp_attributes)
 
                 yield RouteEntry(
                     origin=origin,
@@ -36,12 +37,22 @@ def parse_mrt(mrt_file: IO[bytes]) -> Generator[RouteEntry, None, None]:
                     peer_ip=peers[entry.peer_index].ip_addr,
                     peer_as=peers[entry.peer_index].as_num,
                 )
+        elif isinstance(record.message, RIB_MESSAGES_V1):
+            origin, aspath = extract_aspath_info(record.message.bgp_attributes)
+            yield RouteEntry(
+                origin=origin,
+                aspath=aspath,
+                prefix=record.message.prefix + "/" + str(record.message.prefix_len),
+                prefix_length=record.message.prefix_len,
+                peer_ip=record.message.peer_ip,
+                peer_as=record.message.peer_as,
+            )
         else:  # pragma: no cover
             print(f"Unknown MRT record, ignoring: {record}")
 
 
 def extract_aspath_info(
-    attribute: bgp.BGPPathAttributeAsPath,
+    bgp_attributes: Iterable[bgp._PathAttribute],
 ) -> Tuple[Optional[int], str]:
     """
     Extract the origin AS and AS path string from a ryu AS path attribute.
@@ -50,16 +61,29 @@ def extract_aspath_info(
     an AS set. Path may be an empty string.
     """
     origin = None
-    aspath = ""
+    aspath_str = ""
+    aspath = None
+    as4path = None
+    for attribute in bgp_attributes:
+        if isinstance(attribute, bgp.BGPPathAttributeAsPath):
+            if attribute.value:
+                aspath = attribute.value
+        if isinstance(attribute, bgp.BGPPathAttributeAs4Path):
+            if attribute.value:
+                as4path = attribute.value
 
-    if attribute.value:
-        last_segment = attribute.value[-1]
+    if aspath and as4path and len(as4path):
+        n = len(aspath) - len(as4path)
+        aspath = aspath[:n] + as4path
+
+    if aspath:
+        last_segment = aspath[-1]
         if isinstance(last_segment, list):
             origin = last_segment[-1]
 
-        for segment in attribute.value:
+        for segment in aspath:
             if isinstance(segment, list):
-                aspath += " ".join([str(asn) for asn in segment])
+                aspath_str += " ".join([str(asn) for asn in segment])
             if isinstance(segment, set):
-                aspath += " " + str(segment) + " "
-    return origin, aspath.strip()
+                aspath_str += " " + str(segment) + " "
+    return origin, aspath_str.strip()
