@@ -4,13 +4,15 @@ from typing import Generator, Optional
 from .status import RouteEntry
 
 
-def parse_mrt(mrt_file) -> Generator[RouteEntry, None, None]:
+def parse_mrt(mrt_file, path_bgpdump: Optional[str] = None) -> Generator[RouteEntry, None, None]:
     """
     Parse an MRT file and return a generator of RouteEntry's with
     details of all routes in the file.
     """
-    # TODO: customise path
-    bgpdump = subprocess.run(['bgpdump', '-m', '-l', '-v', mrt_file],
+    if not path_bgpdump:
+        path_bgpdump = 'bgpdump'
+
+    bgpdump = subprocess.run([path_bgpdump, '-m', '-l', '-v', mrt_file],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if bgpdump.returncode:  # pragma: no cover
         raise Exception(f'Failed to parse MRT file with bgpdump: {bgpdump.stderr.decode("ascii")}')

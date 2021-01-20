@@ -13,7 +13,7 @@ from validator.status import RPKIStatus
 from validator.validate import validate
 
 
-def run(mrt_file: str, roa_file: str, verbose: bool):
+def run(mrt_file: str, roa_file: str, path_bgpdump: str, verbose: bool):
     """
     Main runner method. Reads from mrt_file and roa_file, outputs to stdout.
     """
@@ -23,7 +23,7 @@ def run(mrt_file: str, roa_file: str, verbose: bool):
     with open(roa_file, "rb") as f:
         roa_tree, roa_count = parse_roas(f)
 
-    for mrt_entry in parse_mrt(mrt_file):
+    for mrt_entry in parse_mrt(mrt_file, path_bgpdump):
         mrt_entry_count += 1
         result = validate(mrt_entry, roa_tree, verbose=verbose)
         if result:
@@ -66,10 +66,17 @@ def main():  # pragma: no cover
         action="store_true",
         help="output validation details for all routes, instead of only invalids",
     )
+    parser.add_argument(
+        "-p",
+        "--path-bgpdump",
+        dest="path_bgpdump",
+        action="store",
+        help="path to the bgpdump binary from libbgpdump (default: 'bgpdump', expected in $PATH)",
+    )
     parser.add_argument(dest="mrt_file", type=str, help=f"path to MRT file")
     parser.add_argument(dest="roa_file", type=str, help=f"path to ROAs in JSON format")
     args = parser.parse_args()
-    run(args.mrt_file, args.roa_file, args.verbose)
+    run(args.mrt_file, args.roa_file, args.path_bgpdump, args.verbose)
 
 
 if __name__ == "__main__":  # pragma: no cover
