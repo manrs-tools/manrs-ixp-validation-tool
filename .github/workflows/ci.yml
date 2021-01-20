@@ -17,9 +17,15 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
+    - name: Install bgpdump
+      run: |
+        git clone https://github.com/RIPE-NCC/bgpdump.git
+        cd bgpdump
+        sh ./bootstrap.sh
+        make
+        sudo make install
     - name: Install dependencies
       run: |
-        sudo apt-get install -y bgpdump
         python -m pip install --upgrade pip
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
     - name: Lint with flake8
