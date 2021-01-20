@@ -19,6 +19,7 @@ jobs:
         python-version: 3.8
     - name: Install dependencies
       run: |
+        sudo apt-get install -y bgpdump
         python -m pip install --upgrade pip
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
     - name: Lint with flake8
@@ -29,4 +30,4 @@ jobs:
         mypy validator --ignore-missing-imports
     - name: Test with pytest
       run: |
-        pytest --cov-fail-under=100 --cov-report term-missing:skip-covered
+        pytest --cov=validator --cov-fail-under=100 --cov-report term-missing:skip-covered

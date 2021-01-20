@@ -1,3 +1,2 @@
 py-radix==0.10.0
-ryu==4.34
 dataclasses==0.7; python_version < '3.7'       # PEP 557 dataclasses for python<3.7

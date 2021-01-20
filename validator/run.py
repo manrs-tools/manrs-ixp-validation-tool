@@ -23,14 +23,13 @@ def run(mrt_file: str, roa_file: str, verbose: bool):
     with open(roa_file, "rb") as f:
         roa_tree, roa_count = parse_roas(f)
 
-    with open(mrt_file, "rb") as f:
-        for mrt_entry in parse_mrt(f):
-            mrt_entry_count += 1
-            result = validate(mrt_entry, roa_tree, verbose=verbose)
-            if result:
-                print(validator_result_str(result))
-                if result["status"] == RPKIStatus.invalid:
-                    invalid_count += 1
+    for mrt_entry in parse_mrt(mrt_file):
+        mrt_entry_count += 1
+        result = validate(mrt_entry, roa_tree, verbose=verbose)
+        if result:
+            print(validator_result_str(result))
+            if result["status"] == RPKIStatus.invalid:
+                invalid_count += 1
     print(
         f"Processed {mrt_entry_count} MRT entries, {roa_count} ROAs, "
         f"found {invalid_count} RPKI invalid entries"
