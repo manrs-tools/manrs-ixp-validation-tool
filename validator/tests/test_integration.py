@@ -9,7 +9,7 @@ def test_integration(capsys):
     mrt_file = Path(__file__).parent / "185.186.nlix.mrt"
     roa_file = Path(__file__).parent / "roa_test.json"
 
-    run(mrt_file, roa_file, verbose=False)
+    run(mrt_file, roa_file, None, verbose=False)
     output = capsys.readouterr()
     expected = textwrap.dedent(
         """
@@ -24,6 +24,6 @@ def test_integration(capsys):
     ).strip()
     assert expected == output.out.strip()
 
-    run(mrt_file, roa_file, verbose=True)
+    run(mrt_file, roa_file, None, verbose=True)
     output = capsys.readouterr()
     assert "RPKI valid: prefix 185.186.11.0/24 from origin AS26695" in output.out

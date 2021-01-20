@@ -22,17 +22,22 @@ To run the tool, first install the requirements::
 
 You may want to create a virtualenv for this first.
 
+You also need a recent install of bgpdump_.
+
+.. _bgpdump: https://github.com/RIPE-NCC/bgpdump/
+
 Then, run with::
 
     validator/run.py <MRT file path> <ROA JSON file path>
 
-The MRT file should be a table dump v2 RIB export.
+The MRT file should be a table dump v1/v2 RIB export.
 The ROA JSON path is a JSON file as produced by the RIPE NCC RPKI validator
 JSON export, rpki-client (with ``-j``), and others.
 
 By default, the tool will print a few statistics and details of all invalid
 prefixes, to stdout. If you add ``-v`` or ``--verbose``, it will print details
-on every prefix seen in the MRT file.
+on every prefix seen in the MRT file. You can also set a custom path to the
+bgpdump library. Use the ``-h`` flag to see all options.
 
 NOTE: in order to validate whether or not an MRT dump contained routes that
 were RPKI invalid at the time, the ROA JSON file and MRT dump should be from

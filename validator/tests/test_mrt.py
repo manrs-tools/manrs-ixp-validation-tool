@@ -7,8 +7,7 @@ def test_parse_mrt_v2():
     # This is an MRT file containing all routes under 185.186.0.0/16
     # as seen from an NL-IX route server session with RPKI checks disabled
     mrt_file = Path(__file__).parent / "185.186.nlix.mrt"
-    with open(mrt_file, "rb") as f:
-        entries = list(parse_mrt(f))
+    entries = list(parse_mrt(mrt_file))
 
     assert 23 == len(entries)
     assert (
@@ -40,8 +39,7 @@ def test_parse_mrt_v1():
     # This is an MRT file containing a NAMEX snapshot in table dump v1
     # format, including cases where the AS path attribute contains 23456
     mrt_file = Path(__file__).parent / "namex-bgpd-rib-inet6.mrt"
-    with open(mrt_file, "rb") as f:
-        entries = list(parse_mrt(f))
+    entries = list(parse_mrt(mrt_file))
 
     assert 432 == len(entries)
     # Record 9 contains AS23456 in AS path, but has an AS4 path

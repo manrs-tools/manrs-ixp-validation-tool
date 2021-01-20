@@ -17,6 +17,13 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
+    - name: Install bgpdump
+      run: |
+        git clone https://github.com/RIPE-NCC/bgpdump.git
+        cd bgpdump
+        sh ./bootstrap.sh
+        make
+        sudo make install
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -29,4 +36,4 @@ jobs:
         mypy validator --ignore-missing-imports
     - name: Test with pytest
       run: |
-        pytest --cov-fail-under=100 --cov-report term-missing:skip-covered
+        pytest --cov=validator --cov-fail-under=100 --cov-report term-missing:skip-covered
