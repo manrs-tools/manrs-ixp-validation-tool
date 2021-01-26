@@ -1,6 +1,13 @@
 import enum
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Set
+
+
+class RPKIStatus(enum.Enum):
+    valid = "VALID"
+    invalid = "INVALID"
+    invalid_expected = "INVALID_EXPECTED"
+    not_found = "NOT_FOUND"
 
 
 @dataclass
@@ -11,9 +18,4 @@ class RouteEntry:
     prefix_length: int
     peer_ip: str
     peer_as: int
-
-
-class RPKIStatus(enum.Enum):
-    valid = "VALID"
-    invalid = "INVALID"
-    not_found = "NOT_FOUND"
+    communities: Set[str]

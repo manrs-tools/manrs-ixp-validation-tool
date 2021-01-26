@@ -22,8 +22,10 @@ def test_validate():
             prefix_length=28,
             peer_ip="192.0.2.0",
             peer_as=64511,
+            communities={"64500:123"},
         ),
         roa_tree,
+        communities_expected_invalid={"64500:42"},
     )
     assert not result
 
@@ -36,8 +38,10 @@ def test_validate():
             prefix_length=28,
             peer_ip="192.0.2.0",
             peer_as=64511,
+            communities={"64500:123"},
         ),
         roa_tree,
+        communities_expected_invalid=set(),
         verbose=True,
     )
     assert {
@@ -49,6 +53,7 @@ def test_validate():
             "prefix_length": 28,
             "peer_ip": "192.0.2.0",
             "peer_as": 64511,
+            "communities": {"64500:123"},
         },
         "roas": [
             {"prefix": "192.0.2.0/24", "asn": 64500, "max_length": 28},
@@ -56,6 +61,23 @@ def test_validate():
             {"prefix": "192.0.2.0/24", "asn": 0, "max_length": 24},
         ],
     } == result
+
+    # This is invalid because max length, but the community
+    result = validate(
+        RouteEntry(
+            origin=64501,
+            aspath="64499 64501",
+            prefix="192.0.2.0/28",
+            prefix_length=28,
+            peer_ip="192.0.2.0",
+            peer_as=64511,
+            communities={"64500:123"},
+        ),
+        roa_tree,
+        communities_expected_invalid={"64500:123"},
+        verbose=True,
+    )
+    assert RPKIStatus.invalid_expected == result["status"]
 
     # Under this origin AS, max length is 24
     result = validate(
@@ -66,8 +88,10 @@ def test_validate():
             prefix_length=28,
             peer_ip="192.0.2.0",
             peer_as=64511,
+            communities={"64500:123"},
         ),
         roa_tree,
+        communities_expected_invalid=set(),
     )
     assert RPKIStatus.invalid == result["status"]
 
@@ -80,8 +104,10 @@ def test_validate():
             prefix_length=24,
             peer_ip="192.0.2.0",
             peer_as=64511,
+            communities={"64500:123"},
         ),
         roa_tree,
+        communities_expected_invalid=set(),
         verbose=True,
     )
     assert RPKIStatus.valid == result["status"]
@@ -95,8 +121,10 @@ def test_validate():
             prefix_length=32,
             peer_ip="192.0.2.0",
             peer_as=64511,
+            communities=set(),
         ),
         roa_tree,
+        communities_expected_invalid=set(),
         verbose=True,
     )
     assert RPKIStatus.not_found == result["status"]
@@ -110,8 +138,10 @@ def test_validate():
             prefix_length=24,
             peer_ip="192.0.2.0",
             peer_as=64511,
+            communities=set(),
         ),
         roa_tree,
+        communities_expected_invalid=set(),
         verbose=True,
     )
     assert RPKIStatus.invalid == result["status"]
@@ -125,13 +155,15 @@ def test_validate():
             prefix_length=24,
             peer_ip="192.0.2.0",
             peer_as=64511,
+            communities=set(),
         ),
         roa_tree,
+        communities_expected_invalid=set(),
         verbose=True,
     )
     assert RPKIStatus.invalid == result["status"]
 
-    # Unknown should be not_found if there is no ROA
+    # Unknown origin should be not_found if there is no ROA
     result = validate(
         RouteEntry(
             origin=None,
@@ -140,8 +172,10 @@ def test_validate():
             prefix_length=32,
             peer_ip="192.0.2.0",
             peer_as=64511,
+            communities=set(),
         ),
         roa_tree,
+        communities_expected_invalid=set(),
         verbose=True,
     )
     assert RPKIStatus.not_found == result["status"]

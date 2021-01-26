@@ -18,6 +18,13 @@ def test_parse_mrt_v2():
             prefix_length=24,
             peer_ip="193.239.116.255",
             peer_as=34307,
+            communities={
+                "213279:34307:492",
+                "8529:707",
+                "8529:30",
+                "213279:8529:492",
+                "34307:52210",
+            },
         )
         == entries[0]
     )
@@ -30,6 +37,16 @@ def test_parse_mrt_v2():
             prefix_length=24,
             peer_ip="193.239.116.255",
             peer_as=34307,
+            communities={
+                "34307:52210",
+                "213279:34307:492",
+                "213279:1101:9",
+                "8529:30",
+                "8529:707",
+                "34307:60004",
+                "213279:1103:492",
+                "213279:8529:492",
+            },
         )
         == entries[1]
     )
@@ -51,6 +68,7 @@ def test_parse_mrt_v1():
             prefix_length=48,
             peer_ip="2001:7f8:10::19:7440",
             peer_as=23456,
+            communities=set(),
         )
         == entries[9]
     )
