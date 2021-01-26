@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Dict, List, Optional, Union, Set
+from typing import Dict, List, Optional, Set, Union
 
 import radix
 
@@ -7,7 +7,10 @@ from .status import RouteEntry, RPKIStatus
 
 
 def validate(
-    route: RouteEntry, roa_tree: radix.Radix, communities_expected_invalid: Set[str], verbose=False
+    route: RouteEntry,
+    roa_tree: radix.Radix,
+    communities_expected_invalid: Set[str],
+    verbose=False,
 ) -> Optional[
     Dict[
         str,

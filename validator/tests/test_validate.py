@@ -22,10 +22,10 @@ def test_validate():
             prefix_length=28,
             peer_ip="192.0.2.0",
             peer_as=64511,
-            communities={'64500:123'},
+            communities={"64500:123"},
         ),
         roa_tree,
-        communities_expected_invalid={'64500:42'},
+        communities_expected_invalid={"64500:42"},
     )
     assert not result
 
@@ -38,7 +38,7 @@ def test_validate():
             prefix_length=28,
             peer_ip="192.0.2.0",
             peer_as=64511,
-            communities={'64500:123'},
+            communities={"64500:123"},
         ),
         roa_tree,
         communities_expected_invalid=set(),
@@ -53,7 +53,7 @@ def test_validate():
             "prefix_length": 28,
             "peer_ip": "192.0.2.0",
             "peer_as": 64511,
-            "communities": {'64500:123'},
+            "communities": {"64500:123"},
         },
         "roas": [
             {"prefix": "192.0.2.0/24", "asn": 64500, "max_length": 28},
@@ -71,10 +71,10 @@ def test_validate():
             prefix_length=28,
             peer_ip="192.0.2.0",
             peer_as=64511,
-            communities={'64500:123'},
+            communities={"64500:123"},
         ),
         roa_tree,
-        communities_expected_invalid={'64500:123'},
+        communities_expected_invalid={"64500:123"},
         verbose=True,
     )
     assert RPKIStatus.invalid_expected == result["status"]
@@ -88,7 +88,7 @@ def test_validate():
             prefix_length=28,
             peer_ip="192.0.2.0",
             peer_as=64511,
-            communities={'64500:123'},
+            communities={"64500:123"},
         ),
         roa_tree,
         communities_expected_invalid=set(),
@@ -104,7 +104,7 @@ def test_validate():
             prefix_length=24,
             peer_ip="192.0.2.0",
             peer_as=64511,
-            communities={'64500:123'},
+            communities={"64500:123"},
         ),
         roa_tree,
         communities_expected_invalid=set(),
