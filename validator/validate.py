@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Set
 
 import radix
 
@@ -7,7 +7,7 @@ from .status import RouteEntry, RPKIStatus
 
 
 def validate(
-    route: RouteEntry, roa_tree: radix.Radix, verbose=False
+    route: RouteEntry, roa_tree: radix.Radix, communities_expected_invalid: Set[str], verbose=False
 ) -> Optional[
     Dict[
         str,
@@ -34,6 +34,9 @@ def validate(
                 and route.prefix_length <= roa["max_length"]
             ):
                 status = RPKIStatus.valid
+
+    if status == RPKIStatus.invalid and route.communities.intersection(communities_expected_invalid):
+        status = RPKIStatus.invalid_expected
 
     if status == RPKIStatus.invalid or verbose:
         roa_dicts = []

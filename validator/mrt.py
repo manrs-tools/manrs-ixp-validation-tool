@@ -37,6 +37,11 @@ def parse_mrt(mrt_file, path_bgpdump: Optional[str] = None) -> Generator[RouteEn
 
         peer_as = int(peer_as_str)
         prefix_length = int(prefix.split('/')[1])
+        communities_set = set()
+        if communities:
+            communities_set |= set(communities.split(' '))
+        if extended_communities:
+            communities_set |= set(extended_communities.split(' '))
         try:
             origin: Optional[int] = int(aspath.split(' ')[-1])
         except ValueError:
@@ -49,6 +54,7 @@ def parse_mrt(mrt_file, path_bgpdump: Optional[str] = None) -> Generator[RouteEn
             prefix_length=prefix_length,
             peer_ip=peer_ip,
             peer_as=peer_as,
+            communities=communities_set,
         )
     if bgpdump.stderr:  # pragma: no cover
         print(f'Unparsed stderr output from bgpdump:\n{bgpdump.stderr.decode("ascii")}')

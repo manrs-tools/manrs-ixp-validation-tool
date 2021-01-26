@@ -39,6 +39,17 @@ prefixes, to stdout. If you add ``-v`` or ``--verbose``, it will print details
 on every prefix seen in the MRT file. You can also set a custom path to the
 bgpdump library. Use the ``-h`` flag to see all options.
 
+Some MRT dumps will include RPKI invalid routes in the RIB, but tagged with
+a specific community. To allow these routes, supply the expected community
+with the ``--communities-expected-invalid`` parameter, e.g.::
+
+    validator/run.py -c 64500:1 <MRT file path> <ROA JSON file path>
+
+You can set multiple communities, comma separated. When running in verbose
+mode, these routes are reported as RPKI status ``invalid_expected``, i.e.
+they were found in the RIB and are RPKI invalid, but this was expected due
+to the communities set on the route, and is not an error.
+
 NOTE: in order to validate whether or not an MRT dump contained routes that
 were RPKI invalid at the time, the ROA JSON file and MRT dump should be from
 around the same time. Using a much newer ROA file may result in false
