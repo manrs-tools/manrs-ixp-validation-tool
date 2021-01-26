@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # flake8: noqa: E402
 import argparse
+import asyncio
 import sys
 from pathlib import Path
 from typing import Optional, Set
@@ -14,7 +15,7 @@ from validator.status import RPKIStatus
 from validator.validate import validate
 
 
-def run(
+async def run(
     mrt_file: str,
     roa_file: str,
     path_bgpdump: Optional[str],
@@ -101,13 +102,16 @@ def main():  # pragma: no cover
     communities_expected_invalid = set()
     if args.communities_expected_invalid:
         communities_expected_invalid = set(args.communities_expected_invalid.split(","))
-    run(
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(run(
         args.mrt_file,
         args.roa_file,
         args.path_bgpdump,
         communities_expected_invalid,
         args.verbose,
-    )
+    ))
+    loop.close()
 
 
 if __name__ == "__main__":  # pragma: no cover

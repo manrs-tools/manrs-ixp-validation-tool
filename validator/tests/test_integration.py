@@ -1,15 +1,17 @@
 import textwrap
 from pathlib import Path
+import pytest
 
 from ..run import run
 
 
-def test_integration(capsys):
+@pytest.mark.asyncio
+async def test_integration(capsys):
     # By calling the runner, this serves as the integration test
     mrt_file = Path(__file__).parent / "185.186.nlix.mrt"
     roa_file = Path(__file__).parent / "roa_test.json"
 
-    run(mrt_file, roa_file, None, set(), verbose=False)
+    await run(mrt_file, roa_file, None, set(), verbose=False)
     output = capsys.readouterr()
     expected = textwrap.dedent(
         """
@@ -25,6 +27,6 @@ def test_integration(capsys):
     ).strip()
     assert expected == output.out.strip()
 
-    run(mrt_file, roa_file, None, set(), verbose=True)
+    await run(mrt_file, roa_file, None, set(), verbose=True)
     output = capsys.readouterr()
     assert "RPKI valid: prefix 185.186.11.0/24 from origin AS26695" in output.out
