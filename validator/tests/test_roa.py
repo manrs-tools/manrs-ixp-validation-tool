@@ -9,12 +9,13 @@ def test_parse_roas():
     with open(roa_file, "rb") as f:
         tree, count = parse_roas(f)
 
-    assert 5 == count
+    assert 6 == count
     assert {
         "185.186.79.0/24",
         "185.186.11.0/24",
         "2001:db8::/32",
         "2001:db8::/33",
+        '192.0.2.0/24',
     } == set(tree.prefixes())
 
     node_data_v4 = list(tree.search_covered("185.186.79.0/24"))[0].data["roas"]
