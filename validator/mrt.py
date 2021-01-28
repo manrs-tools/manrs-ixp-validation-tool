@@ -4,7 +4,7 @@ from typing import Generator, Optional
 from .status import RouteEntry
 
 
-def parse_mrt(
+async def parse_mrt(
     mrt_file, path_bgpdump: Optional[str] = None
 ) -> Generator[RouteEntry, None, None]:
     """
@@ -74,7 +74,6 @@ def parse_mrt(
             continue
 
         peer_as = int(peer_as_str)
-        prefix_length = int(prefix.split("/")[1])
         communities_set = set()
         if communities:
             communities_set |= set(communities.split(" "))
@@ -89,7 +88,6 @@ def parse_mrt(
             origin=origin,
             aspath=aspath,
             prefix=prefix,
-            prefix_length=prefix_length,
             peer_ip=peer_ip,
             peer_as=peer_as,
             communities=communities_set,

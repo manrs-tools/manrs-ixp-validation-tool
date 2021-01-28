@@ -31,10 +31,11 @@ def validate(
 
     for rnode in rnodes:
         for roa in rnode.data["roas"]:
+            prefix_length = int(route.prefix.split('/')[1])
             if (
                 route.origin
                 and route.origin == roa["asn"]
-                and route.prefix_length <= roa["max_length"]
+                and prefix_length <= roa["max_length"]
             ):
                 status = RPKIStatus.valid
 

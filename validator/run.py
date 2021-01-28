@@ -9,6 +9,7 @@ from typing import Optional, Set
 root = str(Path(__file__).resolve().parents[1])
 sys.path.append(root)
 
+from validator.alicelg import get_routes
 from validator.mrt import parse_mrt
 from validator.roa import parse_roas
 from validator.status import RPKIStatus
@@ -16,30 +17,37 @@ from validator.validate import validate
 
 
 async def run(
-    mrt_file: str,
     roa_file: str,
-    path_bgpdump: Optional[str],
-    communities_expected_invalid: Set[str],
     verbose: bool,
+    communities_expected_invalid: Set[str],
+    mrt_file: Optional[str],
+    path_bgpdump: Optional[str],
+    alice_url: Optional[str],
+    alice_rs_group: Optional[str],
 ):
-    """
-    Main runner method. Reads from mrt_file and roa_file, outputs to stdout.
-    """
     invalid_count = 0
-    mrt_entry_count = 0
+    route_count = 0
 
     with open(roa_file, "rb") as f:
         roa_tree, roa_count = parse_roas(f)
 
-    for mrt_entry in parse_mrt(mrt_file, path_bgpdump):
-        mrt_entry_count += 1
-        result = validate(mrt_entry, roa_tree, communities_expected_invalid, verbose=verbose)
+    if mrt_file:
+        routes_generator = parse_mrt(mrt_file, path_bgpdump)
+    elif alice_url:
+        # TODO: community
+        routes_generator = get_routes(alice_url, alice_rs_group)
+    else:  # pragma: no cover
+        raise Exception('Unable to determine route source')
+
+    async for route_entry in routes_generator:
+        route_count += 1
+        result = validate(route_entry, roa_tree, communities_expected_invalid, verbose=verbose)
         if result:
             print(validator_result_str(result))
             if result["status"] == RPKIStatus.invalid:
                 invalid_count += 1
     print(
-        f"Processed {mrt_entry_count} MRT entries, {roa_count} ROAs, "
+        f"Processed {route_count} MRT entries, {roa_count} ROAs, "
         f"found {invalid_count} unexpected RPKI invalid entries"
     )
 
@@ -61,6 +69,8 @@ def validator_result_str(result) -> str:
         f"AS path {result['route']['aspath']}\n"
         f"Communities {communities_str}\n"
     )
+    if result['route'].get('source'):
+        output += f"Source {result['route']['source']}"
     if result["roas"]:
         output += "ROAs found:\n"
         for roa in result["roas"]:
@@ -71,32 +81,51 @@ def validator_result_str(result) -> str:
 
 
 def main():  # pragma: no cover
-    description = """Validate data in an MRT RIB against RPKI data."""
-    parser = argparse.ArgumentParser(description=description)
+    description = """Validate routes from a route server against RPKI data."""
+    epilog = """
+    Alice LG instances may list the BGP communities expected on RPKI
+    invalid routes through their API. If found, this is used as if provided
+    through the --communities-expected-invalid parameter. If an Alice LG
+    instance is queried and --communities-expected-invalid is provided,
+    the communities found in the Alice LG configuration are ignored.
+    """
+    parser = argparse.ArgumentParser(description=description, epilog=epilog)
+    source_group = parser.add_mutually_exclusive_group(required=True)
+    parser.add_argument(dest="roa_file", type=str, help=f"path to ROAs in JSON format")
     parser.add_argument(
         "-v",
         "--verbose",
-        dest="verbose",
         action="store_true",
-        help="output validation details for all routes, instead of only invalids",
-    )
-    parser.add_argument(
-        "-p",
-        "--path-bgpdump",
-        dest="path_bgpdump",
-        action="store",
-        help="path to the bgpdump binary from libbgpdump (default: 'bgpdump', expected in $PATH)",
+        help="Output validation details for all routes, instead of only invalids.",
     )
     parser.add_argument(
         "-c",
         "--communities-expected-invalid",
-        dest="communities_expected_invalid",
-        action="store",
-        help="communities expected on RPKI invalid routes, comma separated - RPKI invalid routes "
-        "with one of these communities, will not be reported as an error",
+        help="Communities expected on RPKI invalid routes, comma separated - RPKI invalid routes "
+        "with one of these communities, will not be reported as an error.",
     )
-    parser.add_argument(dest="mrt_file", type=str, help=f"path to MRT file")
-    parser.add_argument(dest="roa_file", type=str, help=f"path to ROAs in JSON format")
+    source_group.add_argument(
+        "-m",
+        "--mrt_file",
+        help="Read routes from an MRT file, by providing the path to this file",
+    )
+    parser.add_argument(
+        "-p",
+        "--path-bgpdump",
+        help="Path to the bgpdump binary from libbgpdump (default: 'bgpdump', expected in $PATH).",
+    )
+    source_group.add_argument(
+        "-a",
+        "--alice-url",
+        help="Read routes from an Alice Looking Glass API, by specifying the base URL e.g. "
+             "'https://lg.example.net/api/v1/'",
+    )
+    parser.add_argument(
+        "-g",
+        "--alice-rs-group",
+        help="Group to filter for in Alice LG instances with multiple route servers. Group names "
+             "can be seen on 'https://lg.example.net/api/v1/routeservers/'",
+    )
     args = parser.parse_args()
 
     communities_expected_invalid = set()
@@ -105,11 +134,13 @@ def main():  # pragma: no cover
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run(
-        args.mrt_file,
         args.roa_file,
-        args.path_bgpdump,
-        communities_expected_invalid,
         args.verbose,
+        communities_expected_invalid,
+        args.mrt_file,
+        args.path_bgpdump,
+        args.alice_url,
+        args.alice_rs_group,
     ))
     loop.close()
 
