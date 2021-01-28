@@ -20,9 +20,7 @@ async def parse_mrt(
         stderr=subprocess.PIPE,
     )
     if bgpdump.returncode:  # pragma: no cover
-        raise Exception(
-            f'Failed to parse MRT file with bgpdump: {bgpdump.stderr.decode("ascii")}'
-        )
+        raise Exception(f'Failed to parse MRT file with bgpdump: {bgpdump.stderr.decode("ascii")}')
 
     for rib_entry_bytes in bgpdump.stdout.splitlines():
         rib_entry = rib_entry_bytes.decode("ascii").split("|")
@@ -68,9 +66,7 @@ async def parse_mrt(
                 _,
             ) = rib_entry
         else:  # pragma: no cover
-            print(
-                f"Ignoring unexpected bgpdump output with {len(rib_entry)} fields: {rib_entry}"
-            )
+            print(f"Ignoring unexpected bgpdump output with {len(rib_entry)} fields: {rib_entry}")
             continue
 
         peer_as = int(peer_as_str)

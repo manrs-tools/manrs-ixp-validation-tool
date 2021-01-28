@@ -43,7 +43,10 @@ async def run(
         raise Exception('Unable to determine route source')
 
     if communities_expected_invalid:
-        print(f'Using BGP communities {", ".join(communities_expected_invalid)} as expected RPKI invalid')
+        print(
+            f'Using BGP communities {", ".join(communities_expected_invalid)} '
+            f'as expected RPKI invalid'
+        )
 
     async for route_entry in routes_generator:
         route_count += 1
@@ -80,7 +83,9 @@ def validator_result_str(result) -> str:
     if result["roas"]:
         output += "ROAs found:\n"
         for roa in result["roas"]:
-            output += f"    Prefix {roa['prefix']}, ASN {roa['asn']}, max length {roa['max_length']}\n"
+            output += (
+                f"    Prefix {roa['prefix']}, ASN {roa['asn']}, max length {roa['max_length']}\n"
+            )
     else:
         output += "No ROAs found\n"
     return output
@@ -124,13 +129,13 @@ def main():  # pragma: no cover
         "-a",
         "--alice-url",
         help="Read routes from an Alice Looking Glass API, by specifying the base URL e.g. "
-             "'https://lg.example.net/api/v1/'",
+        "'https://lg.example.net/api/v1/'",
     )
     parser.add_argument(
         "-g",
         "--alice-rs-group",
         help="Group to filter for in Alice LG instances with multiple route servers. Group names "
-             "can be seen on 'https://lg.example.net/api/v1/routeservers/'",
+        "can be seen on 'https://lg.example.net/api/v1/routeservers/'",
     )
     args = parser.parse_args()
 
@@ -139,15 +144,17 @@ def main():  # pragma: no cover
         communities_expected_invalid = set(args.communities_expected_invalid.split(","))
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(run(
-        args.roa_file,
-        args.verbose,
-        communities_expected_invalid,
-        args.mrt_file,
-        args.path_bgpdump,
-        args.alice_url,
-        args.alice_rs_group,
-    ))
+    loop.run_until_complete(
+        run(
+            args.roa_file,
+            args.verbose,
+            communities_expected_invalid,
+            args.mrt_file,
+            args.path_bgpdump,
+            args.alice_url,
+            args.alice_rs_group,
+        )
+    )
     loop.close()
 
 

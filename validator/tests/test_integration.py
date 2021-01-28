@@ -6,8 +6,7 @@ import pytest
 from aioresponses import aioresponses
 
 from ..run import run
-from .test_alicelg import (prepare_get_routes,
-                           prepare_query_rpki_invalid_community)
+from .test_alicelg import prepare_get_routes, prepare_query_rpki_invalid_community
 
 ROA_FILE = Path(__file__).parent / "roa_test.json"
 
@@ -90,7 +89,6 @@ async def test_integration_alice(capsys):
             alice_rs_group='group1',
         )
     output = capsys.readouterr()
-    print(output.out)
     expected = textwrap.dedent(
         """
         Using BGP communities 64501:999 as expected RPKI invalid

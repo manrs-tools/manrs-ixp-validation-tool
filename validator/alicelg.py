@@ -7,7 +7,9 @@ from aiohttp_retry import RetryClient
 from validator.status import RouteEntry
 
 
-async def aio_get_json(client: aiohttp.ClientSession, url: str, key: Optional[str] = None, metadata: Any = None):
+async def aio_get_json(
+    client: aiohttp.ClientSession, url: str, key: Optional[str] = None, metadata: Any = None
+):
     # print(f'req {url}')
     async with client.get(url) as resp:
         json = await resp.json()
@@ -27,10 +29,14 @@ async def query_rpki_invalid_community(base_url: str) -> Optional[str]:
 
 
 # noinspection PyTypeChecker
-async def get_routes(base_url: str, group: Optional[str] = None) -> AsyncGenerator[RouteEntry, None]:
+async def get_routes(
+    base_url: str, group: Optional[str] = None
+) -> AsyncGenerator[RouteEntry, None]:
     connector = aiohttp.TCPConnector(limit=10)
     async with RetryClient(connector=connector, raise_for_status=False) as client:
-        route_servers, _ = await aio_get_json(client, base_url + '/routeservers', key='routeservers')
+        route_servers, _ = await aio_get_json(
+            client, base_url + '/routeservers', key='routeservers'
+        )
         if group:
             route_servers = [r for r in route_servers if r['group'] == group]
 
@@ -53,10 +59,12 @@ async def get_routes(base_url: str, group: Optional[str] = None) -> AsyncGenerat
         for result in asyncio.as_completed(tasks):
             imported_routes, metadata = await result
             for imported_route in imported_routes:
-                communities = imported_route['bgp']['communities'] + imported_route['bgp']['large_communities']
+                communities = (
+                    imported_route['bgp']['communities']
+                    + imported_route['bgp']['large_communities']
+                )
                 communities_set = {
-                    ':'.join([str(segment) for segment in community])
-                    for community in communities
+                    ':'.join([str(segment) for segment in community]) for community in communities
                 }
                 route_entry = RouteEntry(
                     origin=imported_route['bgp']['as_path'][-1],
@@ -70,11 +78,14 @@ async def get_routes(base_url: str, group: Optional[str] = None) -> AsyncGenerat
                 yield route_entry
 
 
-async def _query_rs_neighbors(base_url: str, client: aiohttp.ClientSession, route_servers: List[Dict[str, str]]):
+async def _query_rs_neighbors(
+    base_url: str, client: aiohttp.ClientSession, route_servers: List[Dict[str, str]]
+):
     tasks = []
     for route_server in route_servers:
         url = f'{base_url}/routeservers/{route_server["id"]}/neighbors'
-        task = aio_get_json(client, url, key='neighbours',
-                            metadata={'route_server': route_server['id']})
+        task = aio_get_json(
+            client, url, key='neighbours', metadata={'route_server': route_server['id']}
+        )
         tasks.append(asyncio.ensure_future(task))
     return await asyncio.gather(*tasks)
