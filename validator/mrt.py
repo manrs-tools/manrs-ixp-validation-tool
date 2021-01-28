@@ -1,12 +1,12 @@
 import subprocess
-from typing import Generator, Optional
+from typing import AsyncGenerator, Optional
 
 from .status import RouteEntry
 
 
 async def parse_mrt(
     mrt_file, path_bgpdump: Optional[str] = None
-) -> Generator[RouteEntry, None, None]:
+) -> AsyncGenerator[RouteEntry, None]:
     """
     Parse an MRT file and return a generator of RouteEntry's with
     details of all routes in the file.

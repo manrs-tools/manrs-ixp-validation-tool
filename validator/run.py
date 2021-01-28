@@ -9,7 +9,7 @@ from typing import Optional, Set
 root = str(Path(__file__).resolve().parents[1])
 sys.path.append(root)
 
-from validator.alicelg import get_routes
+from validator import alicelg
 from validator.mrt import parse_mrt
 from validator.roa import parse_roas
 from validator.status import RPKIStatus
@@ -34,10 +34,16 @@ async def run(
     if mrt_file:
         routes_generator = parse_mrt(mrt_file, path_bgpdump)
     elif alice_url:
-        # TODO: community
-        routes_generator = get_routes(alice_url, alice_rs_group)
+        if not communities_expected_invalid:
+            alice_invalid_community = await alicelg.query_rpki_invalid_community(alice_url)
+            if alice_invalid_community:
+                communities_expected_invalid = {alice_invalid_community}
+        routes_generator = alicelg.get_routes(alice_url, alice_rs_group)
     else:  # pragma: no cover
         raise Exception('Unable to determine route source')
+
+    if communities_expected_invalid:
+        print(f'Using BGP communities {", ".join(communities_expected_invalid)} as expected RPKI invalid')
 
     async for route_entry in routes_generator:
         route_count += 1
@@ -47,7 +53,7 @@ async def run(
             if result["status"] == RPKIStatus.invalid:
                 invalid_count += 1
     print(
-        f"Processed {route_count} MRT entries, {roa_count} ROAs, "
+        f"Processed {route_count} route entries, {roa_count} ROAs, "
         f"found {invalid_count} unexpected RPKI invalid entries"
     )
 
@@ -65,12 +71,12 @@ def validator_result_str(result) -> str:
     output = (
         f"RPKI {result['status'].name}: prefix {result['route']['prefix']} from "
         f"origin AS{result['route']['origin']}\n"
-        f"Received from peer {result['route']['peer_ip']} AS{result['route']['peer_as']}\n"
-        f"AS path {result['route']['aspath']}\n"
-        f"Communities {communities_str}\n"
+        f"Received from peer: {result['route']['peer_ip']} AS{result['route']['peer_as']}\n"
+        f"AS path: {result['route']['aspath']}\n"
+        f"Communities: {communities_str}\n"
     )
     if result['route'].get('source'):
-        output += f"Source {result['route']['source']}"
+        output += f"Source: {result['route']['source']}\n"
     if result["roas"]:
         output += "ROAs found:\n"
         for roa in result["roas"]:
