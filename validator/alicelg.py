@@ -10,16 +10,23 @@ from validator.status import RouteEntry
 async def aio_get_json(
     client: aiohttp.ClientSession, url: str, key: Optional[str] = None, metadata: Any = None
 ):
-    # print(f'req {url}')
+    """
+    Do an async HTTP request for JSON data, with the given client and url.
+    If key is given, that key from the JSON is returned. Return value
+    is a tuple of JSON data and the metadata parameter.
+    """
     async with client.get(url) as resp:
         json = await resp.json()
-        # print(f'done {url}')
         if key:
             return json[key], metadata
         return json, metadata
 
 
 async def query_rpki_invalid_community(base_url: str) -> Optional[str]:
+    """
+    Retrieve the RPKI invalid community from an Alice LG instance.
+    Returns None if not found.
+    """
     async with RetryClient(raise_for_status=False) as client:
         json, _ = await aio_get_json(client, base_url + "/config")
         invalid = json.get("rpki", {}).get("invalid")
@@ -32,6 +39,11 @@ async def query_rpki_invalid_community(base_url: str) -> Optional[str]:
 async def get_routes(
     base_url: str, group: Optional[str] = None
 ) -> AsyncGenerator[RouteEntry, None]:
+    """
+    Get the routes from an Alice LG instance, given a base URL.
+    Optionally filters for a particular group. Returns a RouteEntry
+    generator.
+    """
     connector = aiohttp.TCPConnector(limit=10)
     async with RetryClient(connector=connector, raise_for_status=False) as client:
         route_servers, _ = await aio_get_json(
@@ -81,6 +93,9 @@ async def get_routes(
 async def _query_rs_neighbors(
     base_url: str, client: aiohttp.ClientSession, route_servers: List[Dict[str, str]]
 ):
+    """
+    Query the neighbors of a list of route servers, as returned by Alice LG.
+    """
     tasks = []
     for route_server in route_servers:
         url = f'{base_url}/routeservers/{route_server["id"]}/neighbors'
