@@ -40,12 +40,12 @@ async def run(
                 communities_expected_invalid = {alice_invalid_community}
         routes_generator = alicelg.get_routes(alice_url, alice_rs_group)
     else:  # pragma: no cover
-        raise Exception('Unable to determine route source')
+        raise Exception("Unable to determine route source")
 
     if communities_expected_invalid:
         print(
             f'Using BGP communities {", ".join(communities_expected_invalid)} '
-            f'as expected RPKI invalid'
+            f"as expected RPKI invalid"
         )
 
     async for route_entry in routes_generator:
@@ -78,7 +78,7 @@ def validator_result_str(result) -> str:
         f"AS path: {result['route']['aspath']}\n"
         f"Communities: {communities_str}\n"
     )
-    if result['route'].get('source'):
+    if result["route"].get("source"):
         output += f"Source: {result['route']['source']}\n"
     if result["roas"]:
         output += "ROAs found:\n"

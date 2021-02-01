@@ -64,8 +64,8 @@ async def test_integration_alice(capsys):
             communities_expected_invalid=set(),
             path_bgpdump=None,
             mrt_file=None,
-            alice_url='http://example.net/api/v1',
-            alice_rs_group='group1',
+            alice_url="http://example.net/api/v1",
+            alice_rs_group="group1",
         )
     output = capsys.readouterr()
     expected = textwrap.dedent(
@@ -82,11 +82,11 @@ async def test_integration_alice(capsys):
         await run(
             roa_file=ROA_FILE,
             verbose=False,
-            communities_expected_invalid={'64501:999'},
+            communities_expected_invalid={"64501:999"},
             path_bgpdump=None,
             mrt_file=None,
-            alice_url='http://example.net/api/v1',
-            alice_rs_group='group1',
+            alice_url="http://example.net/api/v1",
+            alice_rs_group="group1",
         )
     output = capsys.readouterr()
     expected = textwrap.dedent(

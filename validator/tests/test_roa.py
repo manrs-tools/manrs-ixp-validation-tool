@@ -15,7 +15,7 @@ def test_parse_roas():
         "185.186.11.0/24",
         "2001:db8::/32",
         "2001:db8::/33",
-        '192.0.2.0/24',
+        "192.0.2.0/24",
     } == set(tree.prefixes())
 
     node_data_v4 = list(tree.search_covered("185.186.79.0/24"))[0].data["roas"]

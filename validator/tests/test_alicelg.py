@@ -5,8 +5,8 @@ from ..alicelg import get_routes, query_rpki_invalid_community
 from ..status import RouteEntry
 
 PAYLOAD_CONFIG = {
-    'rpki': {
-        'invalid': ["64501", "10", "20"],
+    "rpki": {
+        "invalid": ["64501", "10", "20"],
     },
 }
 
@@ -40,30 +40,30 @@ PAYLOAD_ROUTES = {
 
 
 def prepare_query_rpki_invalid_community(http_mock, payload=PAYLOAD_CONFIG):
-    http_mock.get('http://example.net/api/v1/config', status=200, payload=payload)
+    http_mock.get("http://example.net/api/v1/config", status=200, payload=payload)
 
 
 def prepare_get_routes(http_mock):
     http_mock.get(
-        'http://example.net/api/v1/routeservers', status=200, payload=PAYLOAD_ROUTESERVERS
+        "http://example.net/api/v1/routeservers", status=200, payload=PAYLOAD_ROUTESERVERS
     )
     http_mock.get(
-        'http://example.net/api/v1/routeservers/server1/neighbors',
+        "http://example.net/api/v1/routeservers/server1/neighbors",
         status=200,
         payload=PAYLOAD_NEIGHBORS,
     )
     http_mock.get(
-        'http://example.net/api/v1/routeservers/server2/neighbors',
+        "http://example.net/api/v1/routeservers/server2/neighbors",
         status=200,
         payload=PAYLOAD_NEIGHBORS,
     )
     http_mock.get(
-        'http://example.net/api/v1/routeservers/server1/neighbors/peer1/routes',
+        "http://example.net/api/v1/routeservers/server1/neighbors/peer1/routes",
         status=200,
         payload=PAYLOAD_ROUTES,
     )
     http_mock.get(
-        'http://example.net/api/v1/routeservers/server2/neighbors/peer1/routes',
+        "http://example.net/api/v1/routeservers/server2/neighbors/peer1/routes",
         status=200,
         payload=PAYLOAD_ROUTES,
     )
@@ -73,23 +73,23 @@ def prepare_get_routes(http_mock):
 async def test_query_rpki_invalid_community():
     with aioresponses() as http_mock:
         prepare_query_rpki_invalid_community(http_mock)
-        response = await query_rpki_invalid_community('http://example.net/api/v1')
-    assert response == '64501:10:20'
+        response = await query_rpki_invalid_community("http://example.net/api/v1")
+    assert response == "64501:10:20"
 
     payload = {
-        'rpki': {
-            'invalid': [],
+        "rpki": {
+            "invalid": [],
         },
     }
     with aioresponses() as http_mock:
         prepare_query_rpki_invalid_community(http_mock, payload)
-        response = await query_rpki_invalid_community('http://example.net/api/v1')
+        response = await query_rpki_invalid_community("http://example.net/api/v1")
     assert response is None
 
     payload = {}
     with aioresponses() as http_mock:
         prepare_query_rpki_invalid_community(http_mock, payload)
-        response = await query_rpki_invalid_community('http://example.net/api/v1')
+        response = await query_rpki_invalid_community("http://example.net/api/v1")
     assert response is None
 
 
@@ -97,24 +97,24 @@ async def test_query_rpki_invalid_community():
 async def test_get_routes():
     with aioresponses() as http_mock:
         prepare_get_routes(http_mock)
-        response = [r async for r in get_routes('http://example.net/api/v1', 'group1')]
+        response = [r async for r in get_routes("http://example.net/api/v1", "group1")]
     assert response == [
         RouteEntry(
             origin=64502,
-            aspath='64501 64502',
-            prefix='192.0.2.0/24',
-            peer_ip='192.0.2.1',
+            aspath="64501 64502",
+            prefix="192.0.2.0/24",
+            peer_ip="192.0.2.1",
             peer_as=64501,
-            communities={'64501:2', '64501:10:20', '64501:1'},
-            source='Alice route server server1',
+            communities={"64501:2", "64501:10:20", "64501:1"},
+            source="Alice route server server1",
         ),
         RouteEntry(
             origin=64502,
-            aspath='64501 64502',
-            prefix='192.0.2.0/24',
-            peer_ip='192.0.2.1',
+            aspath="64501 64502",
+            prefix="192.0.2.0/24",
+            peer_ip="192.0.2.1",
             peer_as=64501,
-            communities={'64501:2', '64501:10:20', '64501:1'},
-            source='Alice route server server2',
+            communities={"64501:2", "64501:10:20", "64501:1"},
+            source="Alice route server server2",
         ),
     ]
