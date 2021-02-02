@@ -31,14 +31,13 @@ def validate(
 
     for rnode in rnodes:
         for roa in rnode.data["roas"]:
-            if (
-                route.origin
-                and route.origin == roa["asn"]
-                and route.prefix_length <= roa["max_length"]
-            ):
+            prefix_length = int(route.prefix.split("/")[1])
+            if route.origin and route.origin == roa["asn"] and prefix_length <= roa["max_length"]:
                 status = RPKIStatus.valid
 
-    if status == RPKIStatus.invalid and route.communities.intersection(communities_expected_invalid):
+    if status == RPKIStatus.invalid and route.communities.intersection(
+        communities_expected_invalid
+    ):
         status = RPKIStatus.invalid_expected
 
     if status == RPKIStatus.invalid or verbose:

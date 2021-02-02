@@ -1,12 +1,12 @@
 import subprocess
-from typing import Generator, Optional
+from typing import AsyncGenerator, Optional
 
 from .status import RouteEntry
 
 
-def parse_mrt(
+async def parse_mrt(
     mrt_file, path_bgpdump: Optional[str] = None
-) -> Generator[RouteEntry, None, None]:
+) -> AsyncGenerator[RouteEntry, None]:
     """
     Parse an MRT file and return a generator of RouteEntry's with
     details of all routes in the file.
@@ -20,9 +20,7 @@ def parse_mrt(
         stderr=subprocess.PIPE,
     )
     if bgpdump.returncode:  # pragma: no cover
-        raise Exception(
-            f'Failed to parse MRT file with bgpdump: {bgpdump.stderr.decode("ascii")}'
-        )
+        raise Exception(f'Failed to parse MRT file with bgpdump: {bgpdump.stderr.decode("ascii")}')
 
     for rib_entry_bytes in bgpdump.stdout.splitlines():
         rib_entry = rib_entry_bytes.decode("ascii").split("|")
@@ -68,13 +66,10 @@ def parse_mrt(
                 _,
             ) = rib_entry
         else:  # pragma: no cover
-            print(
-                f"Ignoring unexpected bgpdump output with {len(rib_entry)} fields: {rib_entry}"
-            )
+            print(f"Ignoring unexpected bgpdump output with {len(rib_entry)} fields: {rib_entry}")
             continue
 
         peer_as = int(peer_as_str)
-        prefix_length = int(prefix.split("/")[1])
         communities_set = set()
         if communities:
             communities_set |= set(communities.split(" "))
@@ -89,7 +84,6 @@ def parse_mrt(
             origin=origin,
             aspath=aspath,
             prefix=prefix,
-            prefix_length=prefix_length,
             peer_ip=peer_ip,
             peer_as=peer_as,
             communities=communities_set,

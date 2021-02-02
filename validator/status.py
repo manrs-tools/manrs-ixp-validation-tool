@@ -15,7 +15,7 @@ class RouteEntry:
     origin: Optional[int]
     aspath: str
     prefix: str
-    prefix_length: int
     peer_ip: str
     peer_as: int
     communities: Set[str]
+    source: Optional[str] = None
