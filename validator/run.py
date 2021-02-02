@@ -9,7 +9,7 @@ from typing import Optional, Set
 root = str(Path(__file__).resolve().parents[1])
 sys.path.append(root)
 
-from validator import alicelg
+from validator import alicelg, birdseye
 from validator.mrt import parse_mrt
 from validator.roa import parse_roas
 from validator.status import RPKIStatus
@@ -24,6 +24,7 @@ async def run(
     path_bgpdump: Optional[str],
     alice_url: Optional[str],
     alice_rs_group: Optional[str],
+    birdseye_url: Optional[str],
 ):
     invalid_count = 0
     route_count = 0
@@ -39,6 +40,8 @@ async def run(
             if alice_invalid_community:
                 communities_expected_invalid = {alice_invalid_community}
         routes_generator = alicelg.get_routes(alice_url, alice_rs_group)
+    elif birdseye_url:
+        routes_generator = birdseye.get_routes(birdseye_url)
     else:  # pragma: no cover
         raise Exception("Unable to determine route source")
 
@@ -137,6 +140,12 @@ def main():  # pragma: no cover
         help="Group to filter for in Alice LG instances with multiple route servers. Group names "
         "can be seen on 'https://lg.example.net/api/v1/routeservers/'",
     )
+    source_group.add_argument(
+        "-b",
+        "--birdseye-url",
+        help="Read routes from a Bird's eye Looking Glass API, by specifying the base URL e.g. "
+        "'https://lg.example.net/route-server-name/api/'",
+    )
     args = parser.parse_args()
 
     communities_expected_invalid = set()
@@ -153,6 +162,7 @@ def main():  # pragma: no cover
             args.path_bgpdump,
             args.alice_url,
             args.alice_rs_group,
+            args.birdseye_url,
         )
     )
     loop.close()

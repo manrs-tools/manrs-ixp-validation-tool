@@ -1,25 +1,11 @@
 import asyncio
-from typing import Any, AsyncGenerator, Dict, List, Optional
+from typing import AsyncGenerator, Dict, List, Optional
 
 import aiohttp
 from aiohttp_retry import RetryClient
 
 from validator.status import RouteEntry
-
-
-async def aio_get_json(
-    client: aiohttp.ClientSession, url: str, key: Optional[str] = None, metadata: Any = None
-):
-    """
-    Do an async HTTP request for JSON data, with the given client and url.
-    If key is given, that key from the JSON is returned. Return value
-    is a tuple of JSON data and the metadata parameter.
-    """
-    async with client.get(url) as resp:
-        json = await resp.json()
-        if key:
-            return json[key], metadata
-        return json, metadata
+from validator.utils import aio_get_json, route_tasks_to_route_entry
 
 
 async def query_rpki_invalid_community(base_url: str) -> Optional[str]:
@@ -63,31 +49,14 @@ async def get_routes(
                 peer_request_metadata = {
                     "peer_ip": peer["address"],
                     "peer_as": peer["asn"],
+                    "peer_name": peer["id"],
                     "route_server": metadata["route_server"],
                 }
                 task = aio_get_json(client, url, key="imported", metadata=peer_request_metadata)
                 tasks.append(asyncio.ensure_future(task))
 
-        for result in asyncio.as_completed(tasks):
-            imported_routes, metadata = await result
-            for imported_route in imported_routes:
-                communities = (
-                    imported_route["bgp"]["communities"]
-                    + imported_route["bgp"]["large_communities"]
-                )
-                communities_set = {
-                    ":".join([str(segment) for segment in community]) for community in communities
-                }
-                route_entry = RouteEntry(
-                    origin=imported_route["bgp"]["as_path"][-1],
-                    aspath=" ".join([str(asn) for asn in imported_route["bgp"]["as_path"]]),
-                    prefix=imported_route["network"],
-                    peer_ip=metadata["peer_ip"],
-                    peer_as=metadata["peer_as"],
-                    communities=communities_set,
-                    source=f'Alice route server {metadata["route_server"]}',
-                )
-                yield route_entry
+        async for entry in route_tasks_to_route_entry(tasks, "Alice LG"):
+            yield entry
 
 
 async def _query_rs_neighbors(

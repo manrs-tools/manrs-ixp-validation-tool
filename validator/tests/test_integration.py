@@ -23,6 +23,7 @@ async def test_integration_mrt(capsys):
         mrt_file=mrt_file,
         alice_url=None,
         alice_rs_group=None,
+        birdseye_url=None,
     )
     output = capsys.readouterr()
     expected = textwrap.dedent(
@@ -47,6 +48,7 @@ async def test_integration_mrt(capsys):
         mrt_file=mrt_file,
         alice_url=None,
         alice_rs_group=None,
+        birdseye_url=None,
     )
     output = capsys.readouterr()
     assert "RPKI valid: prefix 185.186.11.0/24 from origin AS26695" in output.out
@@ -66,6 +68,7 @@ async def test_integration_alice(capsys):
             mrt_file=None,
             alice_url="http://example.net/api/v1",
             alice_rs_group="group1",
+            birdseye_url=None,
         )
     output = capsys.readouterr()
     expected = textwrap.dedent(
@@ -87,6 +90,7 @@ async def test_integration_alice(capsys):
             mrt_file=None,
             alice_url="http://example.net/api/v1",
             alice_rs_group="group1",
+            birdseye_url=None,
         )
     output = capsys.readouterr()
     expected = textwrap.dedent(
@@ -96,7 +100,7 @@ async def test_integration_alice(capsys):
         Received from peer: 192.0.2.1 AS64501
         AS path: 64501 64502
         Communities: 64501:1 64501:10:20 64501:2
-        Source: Alice route server server1
+        Source: Alice LG route server server1 peer peer1
         ROAs found:
             Prefix 192.0.2.0/24, ASN 0, max length 24
         
@@ -104,7 +108,7 @@ async def test_integration_alice(capsys):
         Received from peer: 192.0.2.1 AS64501
         AS path: 64501 64502
         Communities: 64501:1 64501:10:20 64501:2
-        Source: Alice route server server2
+        Source: Alice LG route server server2 peer peer1
         ROAs found:
             Prefix 192.0.2.0/24, ASN 0, max length 24
         
