@@ -6,8 +6,8 @@ from ..status import RouteEntry
 
 PAYLOAD_PROTOCOLS = {
     "protocols": {
-        'peer1': {"state": "up", "neighbor_address": "192.0.2.1", "neighbor_as": 64501},
-        'peer-ignored': {"state": "down", "neighbor_address": "192.0.2.2", "neighbor_as": 64502},
+        "peer1": {"state": "up", "neighbor_address": "192.0.2.1", "neighbor_as": 64501},
+        "peer-ignored": {"state": "down", "neighbor_address": "192.0.2.2", "neighbor_as": 64502},
     },
 }
 

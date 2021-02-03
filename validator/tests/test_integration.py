@@ -6,8 +6,7 @@ import pytest
 from aioresponses import aioresponses
 
 from ..run import run
-from . import test_alicelg
-from . import test_birdseye
+from . import test_alicelg, test_birdseye
 
 ROA_FILE = Path(__file__).parent / "roa_test.json"
 
