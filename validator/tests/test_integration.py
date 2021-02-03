@@ -6,7 +6,8 @@ import pytest
 from aioresponses import aioresponses
 
 from ..run import run
-from .test_alicelg import prepare_get_routes, prepare_query_rpki_invalid_community
+from . import test_alicelg
+from . import test_birdseye
 
 ROA_FILE = Path(__file__).parent / "roa_test.json"
 
@@ -57,8 +58,8 @@ async def test_integration_mrt(capsys):
 @pytest.mark.asyncio
 async def test_integration_alice(capsys):
     with aioresponses() as http_mock:
-        prepare_query_rpki_invalid_community(http_mock)
-        prepare_get_routes(http_mock)
+        test_alicelg.prepare_query_rpki_invalid_community(http_mock)
+        test_alicelg.prepare_get_routes(http_mock)
 
         await run(
             roa_file=ROA_FILE,
@@ -79,8 +80,8 @@ async def test_integration_alice(capsys):
     assert expected == output.out.strip()
 
     with aioresponses() as http_mock:
-        prepare_query_rpki_invalid_community(http_mock)
-        prepare_get_routes(http_mock)
+        test_alicelg.prepare_query_rpki_invalid_community(http_mock)
+        test_alicelg.prepare_get_routes(http_mock)
 
         await run(
             roa_file=ROA_FILE,
@@ -113,5 +114,36 @@ async def test_integration_alice(capsys):
             Prefix 192.0.2.0/24, ASN 0, max length 24
         
         Processed 2 route entries, 6 ROAs, found 2 unexpected RPKI invalid entries"""
+    ).strip()
+    assert expected == output.out.strip()
+
+
+@pytest.mark.asyncio
+async def test_integration_birdseye(capsys):
+    with aioresponses() as http_mock:
+        test_birdseye.prepare_get_routes(http_mock)
+
+        await run(
+            roa_file=ROA_FILE,
+            verbose=False,
+            communities_expected_invalid=set(),
+            path_bgpdump=None,
+            mrt_file=None,
+            alice_url=None,
+            alice_rs_group=None,
+            birdseye_url="http://example.net/api/",
+        )
+    output = capsys.readouterr()
+    expected = textwrap.dedent(
+        """
+        RPKI invalid: prefix 192.0.2.0/24 from origin AS64502
+        Received from peer: 192.0.2.1 AS64501
+        AS path: 64501 64502
+        Communities: 64501:1 64501:10:20 64501:2
+        Source: Bird's Eye peer peer1
+        ROAs found:
+            Prefix 192.0.2.0/24, ASN 0, max length 24
+        
+        Processed 1 route entries, 6 ROAs, found 1 unexpected RPKI invalid entries"""
     ).strip()
     assert expected == output.out.strip()
