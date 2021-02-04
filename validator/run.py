@@ -144,7 +144,7 @@ def main():  # pragma: no cover
         "-b",
         "--birdseye-url",
         help="Read routes from a Bird's eye Looking Glass API, by specifying the base URL e.g. "
-        "'https://lg.example.net/route-server-name/api/'",
+        "'https://lg.example.net/<route-server-name>/api/'",
     )
     args = parser.parse_args()
 
