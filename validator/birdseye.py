@@ -5,7 +5,7 @@ import aiohttp
 from aiohttp_retry import RetryClient
 
 from validator.status import RouteEntry
-from validator.utils import aio_get_json, route_tasks_to_route_entry
+from validator.utils import aio_get_json, route_tasks_to_route_entries
 
 
 # noinspection PyTypeChecker
@@ -33,5 +33,5 @@ async def get_routes(base_url: str) -> AsyncGenerator[RouteEntry, None]:
             task = aio_get_json(client, url, key="routes", metadata=peer_request_metadata)
             tasks.append(asyncio.ensure_future(task))
 
-        async for entry in route_tasks_to_route_entry(tasks, "Bird's Eye"):
+        async for entry in route_tasks_to_route_entries(tasks, "Bird's Eye"):
             yield entry

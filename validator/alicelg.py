@@ -5,7 +5,7 @@ import aiohttp
 from aiohttp_retry import RetryClient
 
 from validator.status import RouteEntry
-from validator.utils import aio_get_json, route_tasks_to_route_entry
+from validator.utils import aio_get_json, route_tasks_to_route_entries
 
 
 async def query_rpki_invalid_community(base_url: str) -> Optional[str]:
@@ -55,7 +55,7 @@ async def get_routes(
                 task = aio_get_json(client, url, key="imported", metadata=peer_request_metadata)
                 tasks.append(asyncio.ensure_future(task))
 
-        async for entry in route_tasks_to_route_entry(tasks, "Alice LG"):
+        async for entry in route_tasks_to_route_entries(tasks, "Alice LG"):
             yield entry
 
 

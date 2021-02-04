@@ -21,7 +21,14 @@ async def aio_get_json(
         return json, metadata
 
 
-async def route_tasks_to_route_entry(tasks, source_name: str):
+async def route_tasks_to_route_entries(tasks, source_name: str):
+    """
+    Given a set of futures, which request route entries from an Alice or Bird's Eye LG,
+    execute the features, parse their output, and yield RouteEntry instances.
+
+    Alice and Bird's Eye route query outputs are almost identical, allowing this
+    same code to be used for handling either.
+    """
     for result in asyncio.as_completed(tasks):
         imported_routes, metadata = await result
         for imported_route in imported_routes:
