@@ -11,7 +11,7 @@ from validator.utils import aio_get_json, route_tasks_to_route_entries
 # noinspection PyTypeChecker
 async def get_routes(base_url: str) -> AsyncGenerator[RouteEntry, None]:
     """
-    Get the routes from an bird's eye LG instance, given a base URL.
+    Get the routes from an Bird's Eye LG instance, given a base URL.
     Returns a RouteEntry generator.
     """
     base_url = base_url.strip("/")
