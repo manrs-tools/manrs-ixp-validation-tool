@@ -17,6 +17,7 @@ async def get_routes(base_url: str) -> AsyncGenerator[RouteEntry, None]:
     base_url = base_url.strip("/")
     connector = aiohttp.TCPConnector(limit=10)
     async with RetryClient(connector=connector, raise_for_status=False) as client:
+        # Following BIRD terminology, peers are referred to as protocols in Bird's Eye
         url = f"{base_url}/protocols/bgp/"
         protocols, _ = await aio_get_json(client, url, key="protocols")
 
