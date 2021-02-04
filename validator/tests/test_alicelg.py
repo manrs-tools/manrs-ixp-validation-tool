@@ -106,7 +106,7 @@ async def test_get_routes():
             peer_ip="192.0.2.1",
             peer_as=64501,
             communities={"64501:2", "64501:10:20", "64501:1"},
-            source="Alice route server server1",
+            source="Alice LG route server server1 peer peer1",
         ),
         RouteEntry(
             origin=64502,
@@ -115,6 +115,6 @@ async def test_get_routes():
             peer_ip="192.0.2.1",
             peer_as=64501,
             communities={"64501:2", "64501:10:20", "64501:1"},
-            source="Alice route server server2",
+            source="Alice LG route server server2 peer peer1",
         ),
     ]
