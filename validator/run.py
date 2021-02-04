@@ -120,7 +120,7 @@ def main():  # pragma: no cover
     )
     source_group.add_argument(
         "-m",
-        "--mrt_file",
+        "--mrt-file",
         help="Read routes from an MRT file, by providing the path to this file",
     )
     parser.add_argument(
