@@ -82,6 +82,11 @@ By default, the tool will print a few statistics and details of all invalid
 prefixes, to stdout. If you add ``-v`` or ``--verbose``, it will print details
 on every route and it's status.
 
+You may see a warning message like
+`UserWarning: RetryOptions is deprecated, use ExponentialRetry`. This is harmless
+and can be ignored. It's an issue in an HTTP library used by the tool, but
+has no impact on its functioning.
+
 NOTE: in order to validate whether or not an MRT dump contained routes that
 were RPKI invalid at the time, the ROA JSON file and MRT dump should be from
 around the same time. Using a much newer ROA file may result in false
