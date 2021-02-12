@@ -73,7 +73,7 @@ def prepare_get_routes(http_mock):
 async def test_query_rpki_invalid_community():
     with aioresponses() as http_mock:
         prepare_query_rpki_invalid_community(http_mock)
-        response = await query_rpki_invalid_community("http://example.net/api/v1")
+        response = await query_rpki_invalid_community("http://example.net/api/v1", True)
     assert response == "64501:10:20"
 
     payload = {
@@ -83,13 +83,13 @@ async def test_query_rpki_invalid_community():
     }
     with aioresponses() as http_mock:
         prepare_query_rpki_invalid_community(http_mock, payload)
-        response = await query_rpki_invalid_community("http://example.net/api/v1")
+        response = await query_rpki_invalid_community("http://example.net/api/v1", True)
     assert response is None
 
     payload = {}
     with aioresponses() as http_mock:
         prepare_query_rpki_invalid_community(http_mock, payload)
-        response = await query_rpki_invalid_community("http://example.net/api/v1")
+        response = await query_rpki_invalid_community("http://example.net/api/v1", True)
     assert response is None
 
 

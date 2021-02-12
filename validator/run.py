@@ -25,6 +25,7 @@ async def run(
     alice_url: Optional[str],
     alice_rs_group: Optional[str],
     birdseye_url: Optional[str],
+    ssl_verify: bool = True,
 ):
     invalid_count = 0
     route_count = 0
@@ -36,12 +37,14 @@ async def run(
         routes_generator = parse_mrt(mrt_file, path_bgpdump)
     elif alice_url:
         if not communities_expected_invalid:
-            alice_invalid_community = await alicelg.query_rpki_invalid_community(alice_url)
+            alice_invalid_community = await alicelg.query_rpki_invalid_community(
+                alice_url, ssl_verify
+            )
             if alice_invalid_community:
                 communities_expected_invalid = {alice_invalid_community}
-        routes_generator = alicelg.get_routes(alice_url, alice_rs_group)
+        routes_generator = alicelg.get_routes(alice_url, alice_rs_group, ssl_verify)
     elif birdseye_url:
-        routes_generator = birdseye.get_routes(birdseye_url)
+        routes_generator = birdseye.get_routes(birdseye_url, ssl_verify)
     else:  # pragma: no cover
         raise Exception("Unable to determine route source")
 
@@ -146,6 +149,12 @@ def main():  # pragma: no cover
         help="Read routes from a Bird's eye Looking Glass API, by specifying the base URL e.g. "
         "'https://lg.example.net/<route-server-name>/api/'",
     )
+    parser.add_argument(
+        "-s",
+        "--disable-ssl-verify",
+        action="store_true",
+        help="Disable SSL verification for HTTPS",
+    )
     args = parser.parse_args()
 
     communities_expected_invalid = set()
@@ -163,6 +172,7 @@ def main():  # pragma: no cover
             args.alice_url,
             args.alice_rs_group,
             args.birdseye_url,
+            not args.disable_ssl_verify,
         )
     )
     loop.close()

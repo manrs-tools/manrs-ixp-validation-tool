@@ -9,7 +9,7 @@ from validator.utils import aio_get_json, route_tasks_to_route_entries
 
 
 # noinspection PyTypeChecker
-async def get_routes(base_url: str) -> AsyncGenerator[RouteEntry, None]:
+async def get_routes(base_url: str, ssl_verify: bool) -> AsyncGenerator[RouteEntry, None]:
     """
     Get the routes from a Bird's Eye LG instance, given a base URL.
     Returns a RouteEntry generator.
@@ -19,7 +19,7 @@ async def get_routes(base_url: str) -> AsyncGenerator[RouteEntry, None]:
     async with RetryClient(connector=connector, raise_for_status=False) as client:
         # Following BIRD terminology, peers are referred to as protocols in Bird's Eye
         url = f"{base_url}/protocols/bgp/"
-        protocols, _ = await aio_get_json(client, url, key="protocols")
+        protocols, _ = await aio_get_json(client, url, key="protocols", ssl_verify=ssl_verify)
 
         tasks = []
         for name, details in protocols.items():
@@ -31,7 +31,9 @@ async def get_routes(base_url: str) -> AsyncGenerator[RouteEntry, None]:
                 "peer_as": details["neighbor_as"],
                 "peer_name": name,
             }
-            task = aio_get_json(client, url, key="routes", metadata=peer_request_metadata)
+            task = aio_get_json(
+                client, url, key="routes", metadata=peer_request_metadata, ssl_verify=ssl_verify
+            )
             tasks.append(asyncio.ensure_future(task))
 
         async for entry in route_tasks_to_route_entries(tasks, "Bird's Eye"):

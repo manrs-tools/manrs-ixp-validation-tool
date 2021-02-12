@@ -42,7 +42,7 @@ def prepare_get_routes(http_mock):
 async def test_get_routes():
     with aioresponses() as http_mock:
         prepare_get_routes(http_mock)
-        response = [r async for r in get_routes("http://example.net/api/")]
+        response = [r async for r in get_routes("http://example.net/api/", True)]
     print(response)
     assert response == [
         RouteEntry(

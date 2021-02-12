@@ -7,14 +7,18 @@ from validator.status import RouteEntry
 
 
 async def aio_get_json(
-    client: aiohttp.ClientSession, url: str, key: Optional[str] = None, metadata: Any = None
+    client: aiohttp.ClientSession,
+    url: str,
+    key: Optional[str] = None,
+    metadata: Any = None,
+    ssl_verify: bool = True,
 ):
     """
     Do an async HTTP request for JSON data, with the given client and url.
     If key is given, that key from the JSON is returned. Return value
     is a tuple of JSON data and the metadata parameter.
     """
-    async with client.get(url) as resp:
+    async with client.get(url, ssl=None if ssl_verify else False) as resp:
         json = await resp.json()
         if key:
             return json[key], metadata
