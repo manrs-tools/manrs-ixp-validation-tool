@@ -30,7 +30,7 @@ PAYLOAD_ROUTES = {
         {
             "network": "192.0.2.0/24",
             "bgp": {
-                "as_path": [64501, 64502],
+                "as_path": ["64501", "64502"],
                 "communities": [[64501, 1], [64501, 2]],
                 "large_communities": [[64501, 10, 20]],
             },

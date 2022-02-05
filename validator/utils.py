@@ -47,8 +47,15 @@ async def route_tasks_to_route_entries(tasks, source_name: str):
                 source += " route server " + metadata["route_server"]
             if "peer_name" in metadata:
                 source += " peer " + metadata["peer_name"]
+            origin_raw = imported_route["bgp"]["as_path"][-1]
+            origin = None
+            if "{" in origin_raw:
+                # as-set as first ASN
+                pass
+            else:
+                origin = int(origin_raw)
             route_entry = RouteEntry(
-                origin=int(imported_route["bgp"]["as_path"][-1]),
+                origin=origin,
                 aspath=" ".join([str(asn) for asn in imported_route["bgp"]["as_path"]]),
                 prefix=imported_route["network"],
                 peer_ip=metadata["peer_ip"],
