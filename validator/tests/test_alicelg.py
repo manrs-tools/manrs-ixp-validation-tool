@@ -19,6 +19,13 @@ PAYLOAD_ROUTESERVERS = {
 }
 
 PAYLOAD_NEIGHBORS = {
+    "neighbors": [
+        {"id": "peer1", "state": "up", "address": "192.0.2.1", "asn": 64501},
+        {"id": "peer-ignored", "state": "down"},
+    ],
+}
+
+PAYLOAD_NEIGHBOURS = {
     "neighbours": [
         {"id": "peer1", "state": "up", "address": "192.0.2.1", "asn": 64501},
         {"id": "peer-ignored", "state": "down"},
@@ -55,7 +62,7 @@ def prepare_get_routes(http_mock):
     http_mock.get(
         "http://example.net/api/v1/routeservers/server2/neighbors",
         status=200,
-        payload=PAYLOAD_NEIGHBORS,
+        payload=PAYLOAD_NEIGHBOURS,
     )
     http_mock.get(
         "http://example.net/api/v1/routeservers/server1/neighbors/peer1/routes",

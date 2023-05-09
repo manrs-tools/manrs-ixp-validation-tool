@@ -39,7 +39,7 @@ async def get_routes(
         retry_options=options, connector=connector, raise_for_status=False, timeout=timeout
     ) as client:
         route_servers, _ = await aio_get_json(
-            client, base_url + "/routeservers", key="routeservers", ssl_verify=ssl_verify
+            client, base_url + "/routeservers", key=["routeservers"], ssl_verify=ssl_verify
         )
         if group:
             route_servers = [r for r in route_servers if r["group"] == group]
@@ -61,7 +61,7 @@ async def get_routes(
                 task = aio_get_json(
                     client,
                     url,
-                    key="imported",
+                    key=["imported"],
                     metadata=peer_request_metadata,
                     ssl_verify=ssl_verify,
                 )
@@ -86,7 +86,7 @@ async def _query_rs_neighbors(
         task = aio_get_json(
             client,
             url,
-            key="neighbours",
+            key=["neighbors", "neighbours"],
             metadata={"route_server": route_server["id"]},
             ssl_verify=ssl_verify,
         )

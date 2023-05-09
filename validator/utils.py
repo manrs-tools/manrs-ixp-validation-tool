@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Optional
+from typing import Any, Optional, List, Union, Dict
 
 import aiohttp
 
@@ -9,7 +9,7 @@ from validator.status import RouteEntry
 async def aio_get_json(
     client: aiohttp.ClientSession,
     url: str,
-    key: Optional[str] = None,
+    key: Optional[List[str]] = None,
     metadata: Any = None,
     ssl_verify: bool = True,
 ):
@@ -20,9 +20,17 @@ async def aio_get_json(
     """
     async with client.get(url, ssl=None if ssl_verify else False) as resp:
         json = await resp.json()
-        if key:
-            return json[key], metadata
-        return json, metadata
+
+        return get_data_from_json(json, key), metadata
+
+
+def get_data_from_json(json: Dict[str, Any], key: Optional[List[str]] = None):
+    if key is None:
+        return json
+    for this_key in key:
+        if json.get(this_key) is not None:
+            return json[this_key]
+    return None
 
 
 async def route_tasks_to_route_entries(tasks, source_name: str):

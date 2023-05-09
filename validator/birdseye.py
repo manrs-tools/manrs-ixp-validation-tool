@@ -19,7 +19,7 @@ async def get_routes(base_url: str, ssl_verify: bool) -> AsyncGenerator[RouteEnt
     async with RetryClient(connector=connector, raise_for_status=False) as client:
         # Following BIRD terminology, peers are referred to as protocols in Bird's Eye
         url = f"{base_url}/protocols/bgp/"
-        protocols, _ = await aio_get_json(client, url, key="protocols", ssl_verify=ssl_verify)
+        protocols, _ = await aio_get_json(client, url, key=["protocols"], ssl_verify=ssl_verify)
 
         tasks = []
         for name, details in protocols.items():
@@ -32,7 +32,7 @@ async def get_routes(base_url: str, ssl_verify: bool) -> AsyncGenerator[RouteEnt
                 "peer_name": name,
             }
             task = aio_get_json(
-                client, url, key="routes", metadata=peer_request_metadata, ssl_verify=ssl_verify
+                client, url, key=["routes"], metadata=peer_request_metadata, ssl_verify=ssl_verify
             )
             tasks.append(asyncio.ensure_future(task))
 
