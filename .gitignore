@@ -4,6 +4,7 @@
 .mypy_cache
 .tmpdirs
 .pytest_cache
+venv/
 
 syntax: glob
 __pycache__
