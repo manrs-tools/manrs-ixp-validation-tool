@@ -20,7 +20,7 @@ def parse_roas(roa_file: IO[bytes]) -> Tuple[radix.Radix, int]:
             node.data["roas"] = list()
         node.data["roas"].append(
             {
-                "asn": int(roa["asn"].replace("AS", "")),
+                "asn": int(str(roa["asn"]).replace("AS", "")),
                 "max_length": roa["maxLength"],
             }
         )
