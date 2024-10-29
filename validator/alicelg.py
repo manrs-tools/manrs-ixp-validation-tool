@@ -1,5 +1,5 @@
 import asyncio
-from typing import AsyncGenerator, Dict, List, Optional
+from typing import AsyncGenerator, Dict, List, Optional, Set
 
 import aiohttp
 from aiohttp_retry import ExponentialRetry, RetryClient
@@ -8,17 +8,21 @@ from validator.status import RouteEntry
 from validator.utils import aio_get_json, route_tasks_to_route_entries
 
 
-async def query_rpki_invalid_community(base_url: str, ssl_verify: bool) -> Optional[str]:
+async def query_rpki_invalid_community(base_url: str, ssl_verify: bool) -> Set[str]:
     """
-    Retrieve the RPKI invalid community from an Alice LG instance.
-    Returns None if not found.
+    Retrieve the RPKI invalid communities from an Alice LG instance.
+    Older only have one community, newer instances may have multiple.
+    Returns empty set if not found.
     """
     async with RetryClient(raise_for_status=False) as client:
         json, _ = await aio_get_json(client, base_url + "/config", ssl_verify=ssl_verify)
         invalid = json.get("rpki", {}).get("invalid")
         if invalid:
-            return ":".join(invalid)
-        return None
+            if isinstance(invalid[0], list):
+                return {":".join(invalid_item) for invalid_item in invalid}
+            else:
+                return {":".join(invalid)}
+        return set()
 
 
 # noinspection PyTypeChecker

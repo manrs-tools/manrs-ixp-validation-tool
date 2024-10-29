@@ -37,11 +37,9 @@ async def run(
         routes_generator = parse_mrt(mrt_file, path_bgpdump)
     elif alice_url:
         if not communities_expected_invalid:
-            alice_invalid_community = await alicelg.query_rpki_invalid_community(
+            communities_expected_invalid = await alicelg.query_rpki_invalid_community(
                 alice_url, ssl_verify
             )
-            if alice_invalid_community:
-                communities_expected_invalid = {alice_invalid_community}
         routes_generator = alicelg.get_routes(alice_url, alice_rs_group, ssl_verify)
     elif birdseye_url:
         routes_generator = birdseye.get_routes(birdseye_url, ssl_verify)
