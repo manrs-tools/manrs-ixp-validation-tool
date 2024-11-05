@@ -55,7 +55,7 @@ async def get_routes(
             for peer in peers:
                 if peer["state"] != "up":
                     continue
-                url = f'{base_url}/routeservers/{metadata["route_server"]}/neighbors/{peer["id"]}/routes'
+                url = f'{base_url}/routeservers/{metadata["route_server"]}/neighbors/{peer["id"]}/routes/received'
                 peer_request_metadata = {
                     "peer_ip": peer["address"],
                     "peer_as": peer["asn"],
