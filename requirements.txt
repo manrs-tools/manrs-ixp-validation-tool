@@ -1,4 +1,4 @@
 py-radix==0.10.0
 dataclasses==0.7; python_version < '3.7'       # PEP 557 dataclasses for python<3.7
 aiohttp==3.10.11
-aiohttp-retry==2.5.3
+aiohttp-retry==2.3
